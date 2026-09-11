@@ -18,44 +18,50 @@ const client = configured
 // ELEMENTS
 // ==========================
 
-const taskList =
-  document.getElementById("taskList");
+const taskList = document.getElementById("taskList");
+const emptyState = document.getElementById("emptyState");
 
-const emptyState =
-  document.getElementById("emptyState");
+const dialog = document.getElementById("taskDialog");
+const form = document.getElementById("taskForm");
+const dialogTitle = document.getElementById("dialogTitle");
+const saveTaskBtn = document.getElementById("saveTaskBtn");
 
-const dialog =
-  document.getElementById("taskDialog");
+const textInput = document.getElementById("taskText");
+const respInput = document.getElementById("taskResp");
 
-const form =
-  document.getElementById("taskForm");
-
-const dialogTitle =
-  document.getElementById("dialogTitle");
-
-const saveTaskBtn =
-  document.getElementById("saveTaskBtn");
-
-const textInput =
-  document.getElementById("taskText");
-
-const respInput =
-  document.getElementById("taskResp");
-
-const hideDone =
-  document.getElementById("hideDone");
-
-const newTaskBtn =
-  document.getElementById("newTaskBtn");
-
-const cancelBtn =
-  document.getElementById("cancelBtn");
+const hideDone = document.getElementById("hideDone");
+const newTaskBtn = document.getElementById("newTaskBtn");
+const cancelBtn = document.getElementById("cancelBtn");
 
 const responsibleFilters =
   document.getElementById("responsibleFilters");
 
 const responsibleLegend =
   document.getElementById("responsibleLegend");
+
+
+// Gestionar responsables
+
+const manageResponsiblesBtn =
+  document.getElementById("manageResponsiblesBtn");
+
+const responsiblesDialog =
+  document.getElementById("responsiblesDialog");
+
+const closeResponsiblesBtn =
+  document.getElementById("closeResponsiblesBtn");
+
+const responsiblesList =
+  document.getElementById("responsiblesList");
+
+const newResponsibleCode =
+  document.getElementById("newResponsibleCode");
+
+const newResponsibleName =
+  document.getElementById("newResponsibleName");
+
+const addResponsibleBtn =
+  document.getElementById("addResponsibleBtn");
 
 
 // ==========================
@@ -65,8 +71,11 @@ const responsibleLegend =
 let filterResp = "ALL";
 let tasks = [];
 let responsibles = [];
+
 let realtimeChannel = null;
+
 let editingTaskId = null;
+
 let sortable = null;
 let isReordering = false;
 
@@ -89,11 +98,10 @@ const demoResponsibles = [
     name: "Carles Molina"
   },
   {
-    code: "PROD",
+    code: "PR",
     name: "Producció"
   }
 ];
-
 
 const demoTasks = [];
 
@@ -101,21 +109,15 @@ const demoTasks = [];
 function localLoad() {
 
   const savedTasks =
-    localStorage.getItem(
-      "sitges_tasks"
-    );
+    localStorage.getItem("sitges_tasks");
 
   const savedResponsibles =
-    localStorage.getItem(
-      "sitges_responsibles"
-    );
-
+    localStorage.getItem("sitges_responsibles");
 
   tasks =
     savedTasks
       ? JSON.parse(savedTasks)
       : demoTasks;
-
 
   responsibles =
     savedResponsibles
@@ -179,9 +181,7 @@ async function loadResponsibles() {
   }
 
 
-  responsibles =
-    data || [];
-
+  responsibles = data || [];
 
   renderResponsibles();
 }
@@ -198,8 +198,14 @@ function renderResponsibles() {
   renderResponsibleSelect();
 
   renderResponsibleLegend();
+
+  renderResponsiblesManager();
 }
 
+
+// ==========================
+// FILTERS
+// ==========================
 
 function renderResponsibleFilters() {
 
@@ -211,26 +217,23 @@ function renderResponsibleFilters() {
 
   allBtn.className =
     "filter" +
-    (filterResp === "ALL"
-      ? " active"
-      : "");
+    (
+      filterResp === "ALL"
+        ? " active"
+        : ""
+    );
 
-  allBtn.dataset.resp =
-    "ALL";
+  allBtn.dataset.resp = "ALL";
+  allBtn.textContent = "Tots";
 
-  allBtn.textContent =
-    "Tots";
 
   allBtn.addEventListener(
     "click",
-    () =>
-      setResponsibleFilter("ALL")
+    () => setResponsibleFilter("ALL")
   );
 
 
-  responsibleFilters.appendChild(
-    allBtn
-  );
+  responsibleFilters.appendChild(allBtn);
 
 
   for (const responsible of responsibles) {
@@ -269,6 +272,20 @@ function renderResponsibleFilters() {
 }
 
 
+function setResponsibleFilter(code) {
+
+  filterResp = code;
+
+  renderResponsibleFilters();
+
+  render();
+}
+
+
+// ==========================
+// RESPONSIBLE SELECT
+// ==========================
+
 function renderResponsibleSelect() {
 
   const currentValue =
@@ -290,9 +307,7 @@ function renderResponsibleSelect() {
       `${responsible.code} · ${responsible.name}`;
 
 
-    respInput.appendChild(
-      option
-    );
+    respInput.appendChild(option);
   }
 
 
@@ -310,6 +325,10 @@ function renderResponsibleSelect() {
   }
 }
 
+
+// ==========================
+// RESPONSIBLE LEGEND
+// ==========================
 
 function renderResponsibleLegend() {
 
@@ -357,18 +376,280 @@ function renderResponsibleLegend() {
 
 
 // ==========================
-// FILTER RESPONSIBLE
+// RESPONSIBLES MANAGER
 // ==========================
 
-function setResponsibleFilter(code) {
+function renderResponsiblesManager() {
 
-  filterResp =
-    code;
+  if (!responsiblesList) {
+    return;
+  }
 
 
-  renderResponsibleFilters();
+  responsiblesList.innerHTML = "";
 
-  render();
+
+  for (const responsible of responsibles) {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "responsible-row";
+
+
+    const code =
+      document.createElement("span");
+
+    code.className =
+      "responsible-code";
+
+    code.textContent =
+      responsible.code;
+
+
+    const name =
+      document.createElement("span");
+
+    name.className =
+      "responsible-name";
+
+    name.textContent =
+      responsible.name;
+
+
+    const edit =
+      document.createElement("button");
+
+    edit.type =
+      "button";
+
+    edit.className =
+      "responsible-edit";
+
+    edit.title =
+      "Edita el nom";
+
+    edit.setAttribute(
+      "aria-label",
+      `Edita ${responsible.name}`
+    );
+
+    edit.textContent =
+      "✎";
+
+
+    edit.addEventListener(
+      "click",
+      () =>
+        editResponsible(
+          responsible.code,
+          responsible.name
+        )
+    );
+
+
+    row.append(
+      code,
+      name,
+      edit
+    );
+
+
+    responsiblesList.appendChild(
+      row
+    );
+  }
+}
+
+
+// ==========================
+// ADD RESPONSIBLE
+// ==========================
+
+async function addResponsible() {
+
+  const code =
+    newResponsibleCode
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const name =
+    newResponsibleName
+      .value
+      .trim();
+
+
+  if (!/^[A-ZÀ-Ü]{2}$/i.test(code)) {
+
+    alert(
+      "El codi ha de tenir exactament dues lletres."
+    );
+
+    return;
+  }
+
+
+  if (!name) {
+
+    alert(
+      "Escriu el nom del responsable."
+    );
+
+    return;
+  }
+
+
+  const exists =
+    responsibles.some(
+      responsible =>
+        responsible.code === code
+    );
+
+
+  if (exists) {
+
+    alert(
+      `Ja existeix el responsable ${code}.`
+    );
+
+    return;
+  }
+
+
+  if (client) {
+
+    const { error } =
+      await client
+        .from("responsibles")
+        .insert({
+          code,
+          name
+        });
+
+
+    if (error) {
+
+      alert(
+        "No s'ha pogut afegir el responsable: " +
+        error.message
+      );
+
+      return;
+    }
+
+
+    newResponsibleCode.value = "";
+    newResponsibleName.value = "";
+
+    await loadResponsibles();
+
+    return;
+  }
+
+
+  responsibles.push({
+    code,
+    name,
+    created_at:
+      new Date().toISOString()
+  });
+
+
+  localSaveResponsibles();
+
+  newResponsibleCode.value = "";
+  newResponsibleName.value = "";
+
+  renderResponsibles();
+}
+
+
+// ==========================
+// EDIT RESPONSIBLE
+// ==========================
+
+async function editResponsible(
+  code,
+  currentName
+) {
+
+  const newName =
+    prompt(
+      `Nom del responsable ${code}:`,
+      currentName
+    );
+
+
+  if (newName === null) {
+    return;
+  }
+
+
+  const cleanName =
+    newName.trim();
+
+
+  if (!cleanName) {
+
+    alert(
+      "El nom no pot estar buit."
+    );
+
+    return;
+  }
+
+
+  if (client) {
+
+    const { error } =
+      await client
+        .from("responsibles")
+        .update({
+          name: cleanName
+        })
+        .eq(
+          "code",
+          code
+        );
+
+
+    if (error) {
+
+      alert(
+        "No s'ha pogut editar el responsable: " +
+        error.message
+      );
+
+      return;
+    }
+
+
+    await loadResponsibles();
+
+    return;
+  }
+
+
+  const responsible =
+    responsibles.find(
+      item =>
+        item.code === code
+    );
+
+
+  if (responsible) {
+
+    responsible.name =
+      cleanName;
+  }
+
+
+  localSaveResponsibles();
+
+  renderResponsibles();
 }
 
 
@@ -382,11 +663,13 @@ async function loadTasks() {
 
     localLoad();
 
+
     tasks.sort(
       (a, b) =>
         (a.position || 0) -
         (b.position || 0)
     );
+
 
     render();
 
@@ -415,9 +698,7 @@ async function loadTasks() {
   }
 
 
-  tasks =
-    data || [];
-
+  tasks = data || [];
 
   render();
 }
@@ -454,8 +735,7 @@ function render() {
     );
 
 
-  taskList.innerHTML =
-    "";
+  taskList.innerHTML = "";
 
 
   emptyState.hidden =
@@ -465,9 +745,7 @@ function render() {
   for (const task of visible) {
 
     const row =
-      document.createElement(
-        "article"
-      );
+      document.createElement("article");
 
 
     row.className =
@@ -483,21 +761,16 @@ function render() {
       task.id;
 
 
-    // Drag handle
+    // Drag
 
     const handle =
-      document.createElement(
-        "div"
-      );
-
+      document.createElement("div");
 
     handle.className =
       "drag-handle";
 
-
     handle.title =
       "Arrossega per reordenar";
-
 
     handle.textContent =
       "⠿";
@@ -506,18 +779,13 @@ function render() {
     // Checkbox
 
     const check =
-      document.createElement(
-        "input"
-      );
-
+      document.createElement("input");
 
     check.type =
       "checkbox";
 
-
     check.checked =
       task.done;
-
 
     check.title =
       task.done
@@ -535,63 +803,48 @@ function render() {
     );
 
 
-    // Responsible badge
+    // Badge
 
     const badge =
-      document.createElement(
-        "span"
-      );
-
+      document.createElement("span");
 
     badge.className =
       "badge";
-
 
     badge.textContent =
       task.responsible;
 
 
-    // Task text
+    // Text
 
     const text =
-      document.createElement(
-        "div"
-      );
-
+      document.createElement("div");
 
     text.className =
       "text";
-
 
     text.textContent =
       task.text;
 
 
-    // Edit
+    // Edit task
 
     const edit =
-      document.createElement(
-        "button"
-      );
-
+      document.createElement("button");
 
     edit.className =
       "edit";
 
-
     edit.type =
       "button";
 
-
     edit.title =
       "Editar tasca";
-
 
     edit.setAttribute(
       "aria-label",
       "Editar tasca"
     );
-
 
     edit.textContent =
       "✎";
@@ -607,28 +860,21 @@ function render() {
     // Delete
 
     const del =
-      document.createElement(
-        "button"
-      );
-
+      document.createElement("button");
 
     del.className =
       "delete";
 
-
     del.type =
       "button";
 
-
     del.title =
       "Eliminar";
-
 
     del.setAttribute(
       "aria-label",
       "Eliminar tasca"
     );
-
 
     del.textContent =
       "×";
@@ -651,9 +897,7 @@ function render() {
     );
 
 
-    taskList.appendChild(
-      row
-    );
+    taskList.appendChild(row);
   }
 
 
@@ -672,8 +916,7 @@ async function addTask(
 
   if (client) {
 
-    isReordering =
-      true;
+    isReordering = true;
 
 
     const orderedTasks =
@@ -711,15 +954,12 @@ async function addTask(
 
     if (failed) {
 
-      isReordering =
-        false;
-
+      isReordering = false;
 
       alert(
         "No s'ha pogut actualitzar l'ordre: " +
         failed.error.message
       );
-
 
       return false;
     }
@@ -735,8 +975,7 @@ async function addTask(
         });
 
 
-    isReordering =
-      false;
+    isReordering = false;
 
 
     if (error) {
@@ -745,13 +984,11 @@ async function addTask(
         error.message
       );
 
-
       return false;
     }
 
 
     await loadTasks();
-
 
     return true;
   }
@@ -761,15 +998,13 @@ async function addTask(
     task => {
 
       task.position =
-        (task.position || 0) +
-        1;
+        (task.position || 0) + 1;
     }
   );
 
 
   tasks.unshift({
-    id:
-      crypto.randomUUID(),
+    id: crypto.randomUUID(),
     text,
     responsible,
     done: false,
@@ -780,7 +1015,6 @@ async function addTask(
   localSaveTasks();
 
   render();
-
 
   return true;
 }
@@ -817,7 +1051,6 @@ function openEditTask(task) {
 
   dialog.showModal();
 
-
   textInput.focus();
 }
 
@@ -849,7 +1082,6 @@ async function editTask(
         error.message
       );
 
-
       return false;
     }
 
@@ -870,7 +1102,6 @@ async function editTask(
     task.text =
       text;
 
-
     task.responsible =
       responsible;
   }
@@ -879,7 +1110,6 @@ async function editTask(
   localSaveTasks();
 
   render();
-
 
   return true;
 }
@@ -913,7 +1143,6 @@ async function toggleTask(
       alert(
         error.message
       );
-
 
       return;
     }
@@ -976,7 +1205,6 @@ async function deleteTask(id) {
         error.message
       );
 
-
       return;
     }
 
@@ -1010,8 +1238,7 @@ function setupSortable() {
 
     sortable.destroy();
 
-    sortable =
-      null;
+    sortable = null;
   }
 
 
@@ -1026,7 +1253,6 @@ function setupSortable() {
       "sorting-disabled"
     );
 
-
     return;
   }
 
@@ -1037,14 +1263,12 @@ function setupSortable() {
 
 
   if (
-    typeof Sortable ===
-    "undefined"
+    typeof Sortable === "undefined"
   ) {
 
     console.warn(
       "SortableJS no està carregat."
     );
-
 
     return;
   }
@@ -1082,9 +1306,7 @@ function setupSortable() {
                 );
 
 
-            await saveTaskOrder(
-              ids
-            );
+            await saveTaskOrder(ids);
           }
       }
     );
@@ -1142,13 +1364,11 @@ async function saveTaskOrder(ids) {
 
     render();
 
-
     return;
   }
 
 
-  isReordering =
-    true;
+  isReordering = true;
 
 
   const results =
@@ -1176,8 +1396,7 @@ async function saveTaskOrder(ids) {
     );
 
 
-  isReordering =
-    false;
+  isReordering = false;
 
 
   if (failed) {
@@ -1189,7 +1408,6 @@ async function saveTaskOrder(ids) {
 
 
     await loadTasks();
-
 
     return;
   }
@@ -1230,9 +1448,9 @@ function startRealtime() {
 
   realtimeChannel =
     client
-      .channel(
-        "tasks-realtime"
-      )
+      .channel("sitges-realtime")
+
+      // Tasques
       .on(
         "postgres_changes",
         {
@@ -1248,6 +1466,21 @@ function startRealtime() {
           }
         }
       )
+
+      // Responsables
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "responsibles"
+        },
+        async () => {
+
+          await loadResponsibles();
+        }
+      )
+
       .subscribe(
         status => {
 
@@ -1278,26 +1511,19 @@ newTaskBtn.addEventListener(
   "click",
   () => {
 
-    editingTaskId =
-      null;
-
+    editingTaskId = null;
 
     form.reset();
-
 
     dialogTitle.textContent =
       "Nova tasca";
 
-
     saveTaskBtn.textContent =
       "Afegeix";
 
-
     renderResponsibleSelect();
 
-
     dialog.showModal();
-
 
     textInput.focus();
   }
@@ -1305,16 +1531,14 @@ newTaskBtn.addEventListener(
 
 
 // ==========================
-// CANCEL
+// CANCEL TASK
 // ==========================
 
 cancelBtn.addEventListener(
   "click",
   () => {
 
-    editingTaskId =
-      null;
-
+    editingTaskId = null;
 
     dialog.close();
   }
@@ -1322,7 +1546,7 @@ cancelBtn.addEventListener(
 
 
 // ==========================
-// SUBMIT FORM
+// TASK FORM SUBMIT
 // ==========================
 
 form.addEventListener(
@@ -1352,7 +1576,6 @@ form.addEventListener(
       alert(
         "Selecciona un responsable."
       );
-
 
       return;
     }
@@ -1385,11 +1608,79 @@ form.addEventListener(
     }
 
 
-    editingTaskId =
-      null;
-
+    editingTaskId = null;
 
     dialog.close();
+  }
+);
+
+
+// ==========================
+// OPEN RESPONSIBLES
+// ==========================
+
+manageResponsiblesBtn.addEventListener(
+  "click",
+  () => {
+
+    renderResponsiblesManager();
+
+    responsiblesDialog.showModal();
+  }
+);
+
+
+// ==========================
+// CLOSE RESPONSIBLES
+// ==========================
+
+closeResponsiblesBtn.addEventListener(
+  "click",
+  () => {
+
+    responsiblesDialog.close();
+  }
+);
+
+
+// ==========================
+// ADD RESPONSIBLE BUTTON
+// ==========================
+
+addResponsibleBtn.addEventListener(
+  "click",
+  addResponsible
+);
+
+
+// Convertir codi automàticament a majúscules
+
+newResponsibleCode.addEventListener(
+  "input",
+  () => {
+
+    newResponsibleCode.value =
+      newResponsibleCode
+        .value
+        .toUpperCase()
+        .replace(/[^A-ZÀ-Ü]/g, "")
+        .slice(0, 2);
+  }
+);
+
+
+// Enter en els camps del responsable
+
+newResponsibleName.addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      addResponsible();
+    }
   }
 );
 

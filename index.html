@@ -1,46 +1,107 @@
 <!doctype html>
 <html lang="ca">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Pendents Sostenibilitat · Sitges 2026</title>
-  <link rel="stylesheet" href="styles.css?v=2" />
+
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 
+
 <body>
+
   <main class="wrap">
 
+    <!-- =========================
+         HEADER
+         ========================= -->
+
     <header class="top">
+
       <div>
-        <p class="eyebrow">Festival de Sitges 2026</p>
-        <h1>Pendents Sostenibilitat</h1>
+
+        <p class="eyebrow">
+          Festival de Sitges 2026
+        </p>
+
+        <h1>
+          Pendents Sostenibilitat
+        </h1>
+
         <p class="subtitle">
           Bloc compartit per apuntar coses a fer i marcar-les quan estiguin resoltes.
         </p>
+
       </div>
 
-      <button id="newTaskBtn" class="primary">
+
+      <button
+        id="newTaskBtn"
+        class="primary">
         + Nova tasca
       </button>
+
     </header>
+
+
+    <!-- =========================
+         TOOLBAR
+         ========================= -->
 
     <section class="toolbar">
 
-      <div class="filters" id="responsibleFilters">
-        <button class="filter active" data-resp="ALL">
+      <div
+        class="filters"
+        id="responsibleFilters">
+
+        <button
+          class="filter active"
+          data-resp="ALL">
           Tots
         </button>
+
       </div>
 
+
       <label class="toggle">
-        <input id="hideDone" type="checkbox" />
-        <span>Amaga les fetes</span>
+
+        <input
+          id="hideDone"
+          type="checkbox" />
+
+        <span>
+          Amaga les fetes
+        </span>
+
       </label>
 
     </section>
 
-    <section class="legend" id="responsibleLegend">
+
+    <!-- =========================
+         RESPONSABLES
+         ========================= -->
+
+    <section
+      class="legend"
+      id="responsibleLegend">
     </section>
+
+
+    <button
+      id="manageResponsiblesBtn"
+      class="manage-responsibles"
+      type="button">
+      Gestiona responsables
+    </button>
+
+
+    <!-- =========================
+         TASK LIST
+         ========================= -->
 
     <section
       class="task-list"
@@ -48,11 +109,20 @@
       aria-live="polite">
     </section>
 
-    <p id="emptyState" class="empty" hidden>
+
+    <p
+      id="emptyState"
+      class="empty"
+      hidden>
       No hi ha tasques amb aquest filtre.
     </p>
 
   </main>
+
+
+  <!-- =========================
+       NEW / EDIT TASK DIALOG
+       ========================= -->
 
   <dialog id="taskDialog">
 
@@ -62,7 +132,9 @@
         Nova tasca
       </h2>
 
+
       <label>
+
         Tasca
 
         <textarea
@@ -70,16 +142,21 @@
           rows="4"
           required
           placeholder="Ex. Consultar amb Mònica si hi ha pressupost..."></textarea>
+
       </label>
 
+
       <label>
+
         Responsable
 
         <select
           id="taskResp"
           required>
         </select>
+
       </label>
+
 
       <div class="dialog-actions">
 
@@ -89,6 +166,7 @@
           class="ghost">
           Cancel·la
         </button>
+
 
         <button
           type="submit"
@@ -103,10 +181,109 @@
 
   </dialog>
 
+
+  <!-- =========================
+       RESPONSABLES DIALOG
+       ========================= -->
+
+  <dialog id="responsiblesDialog">
+
+    <div class="responsibles-panel">
+
+
+      <div class="responsibles-header">
+
+        <h2>
+          Gestiona responsables
+        </h2>
+
+
+        <button
+          type="button"
+          id="closeResponsiblesBtn"
+          class="responsibles-close"
+          aria-label="Tanca">
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- Llista de responsables -->
+
+      <div
+        id="responsiblesList"
+        class="responsibles-list">
+      </div>
+
+
+      <hr />
+
+
+      <!-- Nou responsable -->
+
+      <h3>
+        Nou responsable
+      </h3>
+
+
+      <div class="responsible-form">
+
+
+        <label>
+
+          Codi
+
+          <input
+            id="newResponsibleCode"
+            type="text"
+            maxlength="2"
+            placeholder="Ex. AB"
+            autocomplete="off" />
+
+        </label>
+
+
+        <label>
+
+          Nom
+
+          <input
+            id="newResponsibleName"
+            type="text"
+            placeholder="Ex. Anna Bosch"
+            autocomplete="off" />
+
+        </label>
+
+
+        <button
+          type="button"
+          id="addResponsibleBtn"
+          class="primary">
+          + Afegeix responsable
+        </button>
+
+
+      </div>
+
+    </div>
+
+  </dialog>
+
+
+  <!-- =========================
+       SCRIPTS
+       ========================= -->
+
   <script src="config.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
   <script src="app.js"></script>
 
 </body>
+
 </html>

@@ -67,7 +67,8 @@ h1 {
 
 button,
 select,
-textarea {
+textarea,
+input {
   font: inherit;
 }
 
@@ -139,7 +140,27 @@ textarea {
 .legend {
   font-size: 13px;
   color: var(--muted);
-  padding: 14px 0 18px;
+  padding: 14px 0 10px;
+}
+
+
+/* =========================
+   MANAGE RESPONSIBLES BUTTON
+   ========================= */
+
+.manage-responsibles {
+  margin: 0 0 18px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.manage-responsibles:hover {
+  text-decoration: underline;
 }
 
 
@@ -204,9 +225,6 @@ textarea {
   cursor: grabbing;
 }
 
-
-/* Element mentre s'arrossega */
-
 .drag-ghost {
   opacity: 0.35;
 }
@@ -214,10 +232,6 @@ textarea {
 .drag-chosen {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
-
-
-/* Si hi ha un filtre actiu o s'amaguen les fetes,
-   desactivem visualment el drag */
 
 .sorting-disabled .drag-handle {
   opacity: 0.25;
@@ -242,7 +256,7 @@ textarea {
 
 
 /* =========================
-   RESPONSABLE
+   RESPONSABLE BADGE
    ========================= */
 
 .badge {
@@ -281,9 +295,6 @@ textarea {
   flex-shrink: 0;
 }
 
-
-/* Edit */
-
 .edit {
   color: #999;
   font-size: 17px;
@@ -293,9 +304,6 @@ textarea {
   color: var(--accent);
   background: var(--accent-soft);
 }
-
-
-/* Delete */
 
 .delete {
   color: #aaa;
@@ -320,7 +328,7 @@ textarea {
 
 
 /* =========================
-   DIALOG
+   DIALOGS
    ========================= */
 
 dialog {
@@ -334,6 +342,11 @@ dialog {
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.25);
 }
+
+
+/* =========================
+   TASK FORM
+   ========================= */
 
 form {
   padding: 22px;
@@ -393,6 +406,152 @@ select:focus {
 
 
 /* =========================
+   RESPONSIBLES DIALOG
+   ========================= */
+
+.responsibles-panel {
+  padding: 22px;
+}
+
+.responsibles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.responsibles-header h2 {
+  margin: 0;
+}
+
+.responsibles-close {
+  border: 0;
+  background: transparent;
+  color: #999;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 6px;
+}
+
+.responsibles-close:hover {
+  color: #d33;
+  background: #fff0f0;
+}
+
+
+/* Llista */
+
+.responsibles-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.responsible-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+
+  padding: 9px 10px;
+
+  border: 1px solid var(--line);
+  border-radius: 9px;
+
+  background: var(--card);
+}
+
+.responsible-code {
+  font-weight: 800;
+  font-size: 12px;
+  text-align: center;
+
+  background: #f1efec;
+
+  padding: 5px 4px;
+  border-radius: 6px;
+}
+
+.responsible-name {
+  min-width: 0;
+}
+
+.responsible-edit {
+  border: 0;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+
+  font-size: 17px;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.responsible-edit:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+
+/* Separador */
+
+.responsibles-panel hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 20px 0;
+}
+
+.responsibles-panel h3 {
+  margin: 0 0 14px;
+  font-size: 16px;
+}
+
+
+/* Formulari nou responsable */
+
+.responsible-form {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.responsible-form label {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.responsible-form input {
+  width: 100%;
+
+  border: 1px solid #ccc;
+  border-radius: 9px;
+
+  padding: 9px 10px;
+
+  background: white;
+  color: var(--ink);
+}
+
+.responsible-form input:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.responsible-form .primary {
+  grid-column: 1 / -1;
+  width: max-content;
+}
+
+
+/* =========================
    MOBILE
    ========================= */
 
@@ -418,7 +577,12 @@ select:focus {
   }
 
   .legend {
-    padding: 10px 2px 14px;
+    padding: 10px 2px 8px;
+  }
+
+  .manage-responsibles {
+    margin-bottom: 14px;
+    padding-left: 2px;
   }
 
   .task-list {
@@ -429,9 +593,18 @@ select:focus {
     /*
       Drag | Checkbox | Responsable | Tasca | Editar | Eliminar
     */
-    grid-template-columns: 16px 18px 32px minmax(0, 1fr) 18px 18px;
+    grid-template-columns:
+      16px
+      18px
+      32px
+      minmax(0, 1fr)
+      18px
+      18px;
+
     gap: 4px;
+
     padding: 9px 6px;
+
     border-radius: 10px;
   }
 
@@ -469,6 +642,33 @@ select:focus {
   .delete {
     font-size: 18px;
   }
+
+
+  /* Gestionar responsables */
+
+  .responsibles-panel {
+    padding: 18px;
+  }
+
+  .responsible-row {
+    grid-template-columns:
+      34px
+      minmax(0, 1fr)
+      auto;
+
+    gap: 8px;
+
+    padding: 8px;
+  }
+
+  .responsible-form {
+    grid-template-columns:
+      70px
+      minmax(0, 1fr);
+
+    gap: 8px;
+  }
+
 
   h1 {
     font-size: 30px;
