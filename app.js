@@ -51,6 +51,12 @@ const newTaskBtn =
 const cancelBtn =
   document.getElementById("cancelBtn");
 
+const responsibleFilters =
+  document.getElementById("responsibleFilters");
+
+const responsibleLegend =
+  document.getElementById("responsibleLegend");
+
 
 // ==========================
 // STATE
@@ -58,6 +64,7 @@ const cancelBtn =
 
 let filterResp = "ALL";
 let tasks = [];
+let responsibles = [];
 let realtimeChannel = null;
 let editingTaskId = null;
 let sortable = null;
@@ -65,127 +72,303 @@ let isReordering = false;
 
 
 // ==========================
-// DEMO / LOCAL STORAGE
+// LOCAL FALLBACK
 // ==========================
 
-const demoTasks = [
+const demoResponsibles = [
   {
-    id: "d1",
-    text: "Confirmar l’ampliació del termini per trobar la persona de pràctiques (18–21 de setembre)",
-    responsible: "GL",
-    done: false,
-    position: 1
+    code: "CR",
+    name: "Carlos Rodero"
   },
   {
-    id: "d2",
-    text: "Revisar la documentació de formació d’ECOM i incorporar-hi Sostenibilitat / We Are Legend",
-    responsible: "GL",
-    done: false,
-    position: 2
+    code: "GL",
+    name: "Giada / Laura"
   },
   {
-    id: "d3",
-    text: "Confirmar amb Aram que els formularis d’acreditacions inclouen els camps necessaris de sostenibilitat",
-    responsible: "GL",
-    done: false,
-    position: 3
+    code: "CM",
+    name: "Carles Molina"
   },
   {
-    id: "d4",
-    text: "Publicar l’Estratègia de Sostenibilitat 2026 i actualitzar l’Excel de recollida de dades",
-    responsible: "GL",
-    done: false,
-    position: 4
-  },
-  {
-    id: "d5",
-    text: "Coordinar amb el CEM la comunicació i les inscripcions de la neteja de platja del 10 d’octubre",
-    responsible: "CR",
-    done: false,
-    position: 5
-  },
-  {
-    id: "d6",
-    text: "Consultar amb Mònica si hi ha pressupost per a una segona activitat de sostenibilitat",
-    responsible: "CR",
-    done: false,
-    position: 6
-  },
-  {
-    id: "d7",
-    text: "Contactar amb l’Alba per revisar l’estat de l’activitat de Malvasia i si necessita suport",
-    responsible: "CR",
-    done: false,
-    position: 7
-  },
-  {
-    id: "d8",
-    text: "Revisar i actualitzar els formularis amb la imatge gràfica de 2026",
-    responsible: "CR",
-    done: false,
-    position: 8
-  },
-  {
-    id: "d9",
-    text: "Consultar amb Ticketing (Àngel Mateos) la incorporació de l’enquesta de mobilitat a la venda online d’entrades",
-    responsible: "CR",
-    done: false,
-    position: 9
-  },
-  {
-    id: "d10",
-    text: "Preparar el pla i calendari de comunicació de sostenibilitat 2026 a partir dels materials de 2025",
-    responsible: "CR",
-    done: false,
-    position: 10
-  },
-  {
-    id: "d11",
-    text: "Revisar la web de sostenibilitat We Are Legend i els enllaços i continguts pendents",
-    responsible: "CR",
-    done: false,
-    position: 11
-  },
-  {
-    id: "d12",
-    text: "Consultar amb l’Agència de Viatges la metodologia de càlcul de la petjada de carboni dels trajectes",
-    responsible: "CR",
-    done: false,
-    position: 12
-  },
-  {
-    id: "d13",
-    text: "Traslladar a Agustina la proposta perquè l’Stand WE ARE LEGEND aparegui com un únic espai a “Sales i Espais”",
-    responsible: "CM",
-    done: false,
-    position: 13
-  },
-  {
-    id: "d14",
-    text: "Consultar amb Agustina l’estat de la web de sostenibilitat i la incorporació del clip We Are Legend i del vídeo de l’stand",
-    responsible: "CM",
-    done: false,
-    position: 14
+    code: "PROD",
+    name: "Producció"
   }
 ];
 
 
+const demoTasks = [];
+
+
 function localLoad() {
-  const saved =
-    localStorage.getItem("sitges_tasks");
+
+  const savedTasks =
+    localStorage.getItem(
+      "sitges_tasks"
+    );
+
+  const savedResponsibles =
+    localStorage.getItem(
+      "sitges_responsibles"
+    );
+
 
   tasks =
-    saved
-      ? JSON.parse(saved)
+    savedTasks
+      ? JSON.parse(savedTasks)
       : demoTasks;
+
+
+  responsibles =
+    savedResponsibles
+      ? JSON.parse(savedResponsibles)
+      : demoResponsibles;
 }
 
 
-function localSave() {
+function localSaveTasks() {
+
   localStorage.setItem(
     "sitges_tasks",
     JSON.stringify(tasks)
   );
+}
+
+
+function localSaveResponsibles() {
+
+  localStorage.setItem(
+    "sitges_responsibles",
+    JSON.stringify(responsibles)
+  );
+}
+
+
+// ==========================
+// LOAD RESPONSIBLES
+// ==========================
+
+async function loadResponsibles() {
+
+  if (!client) {
+
+    localLoad();
+
+    renderResponsibles();
+
+    return;
+  }
+
+
+  const { data, error } =
+    await client
+      .from("responsibles")
+      .select("*")
+      .order(
+        "created_at",
+        { ascending: true }
+      );
+
+
+  if (error) {
+
+    alert(
+      "No s'han pogut carregar els responsables: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  responsibles =
+    data || [];
+
+
+  renderResponsibles();
+}
+
+
+// ==========================
+// RENDER RESPONSIBLES
+// ==========================
+
+function renderResponsibles() {
+
+  renderResponsibleFilters();
+
+  renderResponsibleSelect();
+
+  renderResponsibleLegend();
+}
+
+
+function renderResponsibleFilters() {
+
+  responsibleFilters.innerHTML = "";
+
+
+  const allBtn =
+    document.createElement("button");
+
+  allBtn.className =
+    "filter" +
+    (filterResp === "ALL"
+      ? " active"
+      : "");
+
+  allBtn.dataset.resp =
+    "ALL";
+
+  allBtn.textContent =
+    "Tots";
+
+  allBtn.addEventListener(
+    "click",
+    () =>
+      setResponsibleFilter("ALL")
+  );
+
+
+  responsibleFilters.appendChild(
+    allBtn
+  );
+
+
+  for (const responsible of responsibles) {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "filter" +
+      (
+        filterResp === responsible.code
+          ? " active"
+          : ""
+      );
+
+    button.dataset.resp =
+      responsible.code;
+
+    button.textContent =
+      responsible.code;
+
+
+    button.addEventListener(
+      "click",
+      () =>
+        setResponsibleFilter(
+          responsible.code
+        )
+    );
+
+
+    responsibleFilters.appendChild(
+      button
+    );
+  }
+}
+
+
+function renderResponsibleSelect() {
+
+  const currentValue =
+    respInput.value;
+
+
+  respInput.innerHTML = "";
+
+
+  for (const responsible of responsibles) {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      responsible.code;
+
+    option.textContent =
+      `${responsible.code} · ${responsible.name}`;
+
+
+    respInput.appendChild(
+      option
+    );
+  }
+
+
+  const currentStillExists =
+    responsibles.some(
+      responsible =>
+        responsible.code === currentValue
+    );
+
+
+  if (currentStillExists) {
+
+    respInput.value =
+      currentValue;
+  }
+}
+
+
+function renderResponsibleLegend() {
+
+  responsibleLegend.innerHTML = "";
+
+
+  const strong =
+    document.createElement("strong");
+
+  strong.textContent =
+    "Responsables:";
+
+
+  responsibleLegend.appendChild(
+    strong
+  );
+
+
+  if (!responsibles.length) {
+
+    responsibleLegend.append(
+      " Cap responsable"
+    );
+
+    return;
+  }
+
+
+  responsibles.forEach(
+    (responsible, index) => {
+
+      responsibleLegend.append(
+        index === 0
+          ? " "
+          : " · "
+      );
+
+
+      responsibleLegend.append(
+        `${responsible.code} · ${responsible.name}`
+      );
+    }
+  );
+}
+
+
+// ==========================
+// FILTER RESPONSIBLE
+// ==========================
+
+function setResponsibleFilter(code) {
+
+  filterResp =
+    code;
+
+
+  renderResponsibleFilters();
+
+  render();
 }
 
 
@@ -196,6 +379,7 @@ function localSave() {
 async function loadTasks() {
 
   if (!client) {
+
     localLoad();
 
     tasks.sort(
@@ -221,6 +405,7 @@ async function loadTasks() {
 
 
   if (error) {
+
     alert(
       "No s'han pogut carregar les tasques: " +
       error.message
@@ -230,42 +415,48 @@ async function loadTasks() {
   }
 
 
-  tasks = data;
+  tasks =
+    data || [];
+
 
   render();
 }
 
 
 // ==========================
-// RENDER
+// RENDER TASKS
 // ==========================
 
 function render() {
 
   const visible =
-    tasks.filter(task => {
+    tasks.filter(
+      task => {
 
-      if (
-        filterResp !== "ALL" &&
-        task.responsible !== filterResp
-      ) {
-        return false;
+        if (
+          filterResp !== "ALL" &&
+          task.responsible !== filterResp
+        ) {
+          return false;
+        }
+
+
+        if (
+          hideDone.checked &&
+          task.done
+        ) {
+          return false;
+        }
+
+
+        return true;
       }
+    );
 
 
-      if (
-        hideDone.checked &&
-        task.done
-      ) {
-        return false;
-      }
+  taskList.innerHTML =
+    "";
 
-
-      return true;
-    });
-
-
-  taskList.innerHTML = "";
 
   emptyState.hidden =
     visible.length > 0;
@@ -274,11 +465,19 @@ function render() {
   for (const task of visible) {
 
     const row =
-      document.createElement("article");
+      document.createElement(
+        "article"
+      );
+
 
     row.className =
       "task" +
-      (task.done ? " done" : "");
+      (
+        task.done
+          ? " done"
+          : ""
+      );
+
 
     row.dataset.id =
       task.id;
@@ -287,13 +486,18 @@ function render() {
     // Drag handle
 
     const handle =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
+
 
     handle.className =
       "drag-handle";
 
+
     handle.title =
       "Arrossega per reordenar";
+
 
     handle.textContent =
       "⠿";
@@ -302,18 +506,24 @@ function render() {
     // Checkbox
 
     const check =
-      document.createElement("input");
+      document.createElement(
+        "input"
+      );
+
 
     check.type =
       "checkbox";
 
+
     check.checked =
       task.done;
+
 
     check.title =
       task.done
         ? "Marca com a pendent"
         : "Marca com a feta";
+
 
     check.addEventListener(
       "change",
@@ -328,10 +538,14 @@ function render() {
     // Responsible badge
 
     const badge =
-      document.createElement("span");
+      document.createElement(
+        "span"
+      );
+
 
     badge.className =
       "badge";
+
 
     badge.textContent =
       task.responsible;
@@ -340,10 +554,14 @@ function render() {
     // Task text
 
     const text =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
+
 
     text.className =
       "text";
+
 
     text.textContent =
       task.text;
@@ -352,24 +570,32 @@ function render() {
     // Edit
 
     const edit =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
+
 
     edit.className =
       "edit";
 
+
     edit.type =
       "button";
 
+
     edit.title =
       "Editar tasca";
+
 
     edit.setAttribute(
       "aria-label",
       "Editar tasca"
     );
 
+
     edit.textContent =
       "✎";
+
 
     edit.addEventListener(
       "click",
@@ -381,24 +607,32 @@ function render() {
     // Delete
 
     const del =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
+
 
     del.className =
       "delete";
 
+
     del.type =
       "button";
 
+
     del.title =
       "Eliminar";
+
 
     del.setAttribute(
       "aria-label",
       "Eliminar tasca"
     );
 
+
     del.textContent =
       "×";
+
 
     del.addEventListener(
       "click",
@@ -417,7 +651,9 @@ function render() {
     );
 
 
-    taskList.appendChild(row);
+    taskList.appendChild(
+      row
+    );
   }
 
 
@@ -429,42 +665,66 @@ function render() {
 // ADD TASK
 // ==========================
 
-async function addTask(text, responsible) {
+async function addTask(
+  text,
+  responsible
+) {
 
   if (client) {
 
-    // Desplazar todas las tareas actuales una posición hacia abajo
-    isReordering = true;
+    isReordering =
+      true;
 
-    const orderedTasks = [...tasks].sort(
-      (a, b) => (a.position || 0) - (b.position || 0)
-    );
 
-    const updates = await Promise.all(
-      orderedTasks.map((task, index) =>
-        client
-          .from("tasks")
-          .update({
-            position: index + 2
-          })
-          .eq("id", task.id)
-      )
-    );
+    const orderedTasks =
+      [...tasks].sort(
+        (a, b) =>
+          (a.position || 0) -
+          (b.position || 0)
+      );
 
-    const failed = updates.find(result => result.error);
+
+    const updates =
+      await Promise.all(
+        orderedTasks.map(
+          (task, index) =>
+            client
+              .from("tasks")
+              .update({
+                position:
+                  index + 2
+              })
+              .eq(
+                "id",
+                task.id
+              )
+        )
+      );
+
+
+    const failed =
+      updates.find(
+        result =>
+          result.error
+      );
+
 
     if (failed) {
-      isReordering = false;
+
+      isReordering =
+        false;
+
 
       alert(
         "No s'ha pogut actualitzar l'ordre: " +
         failed.error.message
       );
 
+
       return false;
     }
 
-    // La nova tasca sempre serà la primera
+
     const { error } =
       await client
         .from("tasks")
@@ -474,34 +734,53 @@ async function addTask(text, responsible) {
           position: 1
         });
 
-    isReordering = false;
+
+    isReordering =
+      false;
+
 
     if (error) {
-      alert(error.message);
+
+      alert(
+        error.message
+      );
+
+
       return false;
     }
 
+
     await loadTasks();
+
 
     return true;
   }
 
 
-  // Mode local
-  tasks.forEach(task => {
-    task.position = (task.position || 0) + 1;
-  });
+  tasks.forEach(
+    task => {
+
+      task.position =
+        (task.position || 0) +
+        1;
+    }
+  );
+
 
   tasks.unshift({
-    id: crypto.randomUUID(),
+    id:
+      crypto.randomUUID(),
     text,
     responsible,
     done: false,
     position: 1
   });
 
-  localSave();
+
+  localSaveTasks();
+
   render();
+
 
   return true;
 }
@@ -529,11 +808,15 @@ function openEditTask(task) {
     task.text;
 
 
+  renderResponsibleSelect();
+
+
   respInput.value =
     task.responsible;
 
 
   dialog.showModal();
+
 
   textInput.focus();
 }
@@ -561,7 +844,11 @@ async function editTask(
 
 
     if (error) {
-      alert(error.message);
+
+      alert(
+        error.message
+      );
+
 
       return false;
     }
@@ -579,17 +866,20 @@ async function editTask(
 
 
   if (task) {
+
     task.text =
       text;
+
 
     task.responsible =
       responsible;
   }
 
 
-  localSave();
+  localSaveTasks();
 
   render();
+
 
   return true;
 }
@@ -619,7 +909,11 @@ async function toggleTask(
 
 
     if (error) {
-      alert(error.message);
+
+      alert(
+        error.message
+      );
+
 
       return;
     }
@@ -637,19 +931,20 @@ async function toggleTask(
 
 
   if (task) {
+
     task.done =
       done;
   }
 
 
-  localSave();
+  localSaveTasks();
 
   render();
 }
 
 
 // ==========================
-// DELETE
+// DELETE TASK
 // ==========================
 
 async function deleteTask(id) {
@@ -676,7 +971,11 @@ async function deleteTask(id) {
 
 
     if (error) {
-      alert(error.message);
+
+      alert(
+        error.message
+      );
+
 
       return;
     }
@@ -695,7 +994,7 @@ async function deleteTask(id) {
 
   normaliseLocalPositions();
 
-  localSave();
+  localSaveTasks();
 
   render();
 }
@@ -708,9 +1007,11 @@ async function deleteTask(id) {
 function setupSortable() {
 
   if (sortable) {
+
     sortable.destroy();
 
-    sortable = null;
+    sortable =
+      null;
   }
 
 
@@ -720,9 +1021,11 @@ function setupSortable() {
 
 
   if (!canReorder) {
+
     taskList.classList.add(
       "sorting-disabled"
     );
+
 
     return;
   }
@@ -734,11 +1037,14 @@ function setupSortable() {
 
 
   if (
-    typeof Sortable === "undefined"
+    typeof Sortable ===
+    "undefined"
   ) {
+
     console.warn(
       "SortableJS no està carregat."
     );
+
 
     return;
   }
@@ -765,9 +1071,10 @@ function setupSortable() {
             const ids =
               Array
                 .from(
-                  taskList.querySelectorAll(
-                    ".task"
-                  )
+                  taskList
+                    .querySelectorAll(
+                      ".task"
+                    )
                 )
                 .map(
                   row =>
@@ -831,15 +1138,17 @@ async function saveTaskOrder(ids) {
         .filter(Boolean);
 
 
-    localSave();
+    localSaveTasks();
 
     render();
+
 
     return;
   }
 
 
-  isReordering = true;
+  isReordering =
+    true;
 
 
   const results =
@@ -867,7 +1176,8 @@ async function saveTaskOrder(ids) {
     );
 
 
-  isReordering = false;
+  isReordering =
+    false;
 
 
   if (failed) {
@@ -877,7 +1187,9 @@ async function saveTaskOrder(ids) {
       failed.error.message
     );
 
+
     await loadTasks();
+
 
     return;
   }
@@ -897,6 +1209,7 @@ function normaliseLocalPositions() {
     )
     .forEach(
       (task, index) => {
+
         task.position =
           index + 1;
       }
@@ -930,12 +1243,14 @@ function startRealtime() {
         async () => {
 
           if (!isReordering) {
+
             await loadTasks();
           }
         }
       )
       .subscribe(
         status => {
+
           console.log(
             "Realtime status:",
             status
@@ -946,51 +1261,8 @@ function startRealtime() {
 
 
 // ==========================
-// FILTERS
+// HIDE DONE
 // ==========================
-
-document
-  .querySelectorAll(
-    ".filter"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          document
-            .querySelectorAll(
-              ".filter"
-            )
-            .forEach(
-              item =>
-                item
-                  .classList
-                  .remove(
-                    "active"
-                  )
-            );
-
-
-          button
-            .classList
-            .add(
-              "active"
-            );
-
-
-          filterResp =
-            button.dataset.resp;
-
-
-          render();
-        }
-      );
-    }
-  );
-
 
 hideDone.addEventListener(
   "change",
@@ -1021,6 +1293,9 @@ newTaskBtn.addEventListener(
       "Afegeix";
 
 
+    renderResponsibleSelect();
+
+
     dialog.showModal();
 
 
@@ -1039,6 +1314,7 @@ cancelBtn.addEventListener(
 
     editingTaskId =
       null;
+
 
     dialog.close();
   }
@@ -1062,7 +1338,22 @@ form.addEventListener(
         .trim();
 
 
+    const responsible =
+      respInput.value;
+
+
     if (!text) {
+      return;
+    }
+
+
+    if (!responsible) {
+
+      alert(
+        "Selecciona un responsable."
+      );
+
+
       return;
     }
 
@@ -1076,7 +1367,7 @@ form.addEventListener(
         await editTask(
           editingTaskId,
           text,
-          respInput.value
+          responsible
         );
 
     } else {
@@ -1084,7 +1375,7 @@ form.addEventListener(
       success =
         await addTask(
           text,
-          respInput.value
+          responsible
         );
     }
 
@@ -1108,6 +1399,8 @@ form.addEventListener(
 // ==========================
 
 async function init() {
+
+  await loadResponsibles();
 
   await loadTasks();
 

@@ -27,11 +27,9 @@
     <section class="toolbar">
 
       <div class="filters" id="responsibleFilters">
-        <button class="filter active" data-resp="ALL">Tots</button>
-        <button class="filter" data-resp="CR">CR</button>
-        <button class="filter" data-resp="GL">GL</button>
-        <button class="filter" data-resp="CM">CM</button>
-        <button class="filter" data-resp="PROD">PROD</button>
+        <button class="filter active" data-resp="ALL">
+          Tots
+        </button>
       </div>
 
       <label class="toggle">
@@ -41,15 +39,7 @@
 
     </section>
 
-    <section class="legend">
-      <strong>Responsables:</strong>
-      CR · Carlos
-      &nbsp;·&nbsp;
-      GL · Giada/Laura
-      &nbsp;·&nbsp;
-      CM · Carles Molina
-      &nbsp;·&nbsp;
-      PROD · Producció
+    <section class="legend" id="responsibleLegend">
     </section>
 
     <section
@@ -68,10 +58,13 @@
 
     <form id="taskForm">
 
-      <h2 id="dialogTitle">Nova tasca</h2>
+      <h2 id="dialogTitle">
+        Nova tasca
+      </h2>
 
       <label>
         Tasca
+
         <textarea
           id="taskText"
           rows="4"
@@ -82,26 +75,10 @@
       <label>
         Responsable
 
-        <select id="taskResp">
-
-          <option value="CR">
-            CR · Carlos
-          </option>
-
-          <option value="GL">
-            GL · Giada/Laura
-          </option>
-
-          <option value="CM">
-            CM · Carles Molina
-          </option>
-
-          <option value="PROD">
-            PROD · Producció
-          </option>
-
+        <select
+          id="taskResp"
+          required>
         </select>
-
       </label>
 
       <div class="dialog-actions">

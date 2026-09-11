@@ -399,12 +399,12 @@ select:focus {
 @media (max-width: 650px) {
 
   .wrap {
-    padding: 28px 14px 60px;
+    padding: 22px 8px 50px;
   }
 
   .top {
     display: grid;
-    gap: 18px;
+    gap: 14px;
   }
 
   .top .primary {
@@ -414,22 +414,61 @@ select:focus {
   .toolbar {
     align-items: flex-start;
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .legend {
+    padding: 10px 2px 14px;
+  }
+
+  .task-list {
+    gap: 7px;
   }
 
   .task {
-    grid-template-columns: 24px auto 54px minmax(0, 1fr) auto auto;
-    gap: 7px;
-    padding: 12px 10px;
+    /*
+      Drag | Checkbox | Responsable | Tasca | Editar | Eliminar
+    */
+    grid-template-columns: 18px 20px 42px minmax(0, 1fr) 20px 20px;
+
+    gap: 5px;
+    padding: 10px 7px;
+    border-radius: 10px;
   }
 
   .drag-handle {
-    width: 24px;
-    font-size: 17px;
+    width: 18px;
+    font-size: 16px;
+  }
+
+  .task input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 4px 3px;
+    border-radius: 6px;
+  }
+
+  .text {
+    line-height: 1.28;
+    font-size: 14px;
   }
 
   .edit,
   .delete {
-    padding: 4px;
+    padding: 2px;
+  }
+
+  .edit {
+    font-size: 16px;
+  }
+
+  .delete {
+    font-size: 19px;
   }
 
   h1 {
