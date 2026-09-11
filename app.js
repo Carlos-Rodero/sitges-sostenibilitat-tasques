@@ -192,8 +192,7 @@ async function loadTasks() {
   await client
     .from("tasks")
     .select("*")
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: true });
+    .order("position", { ascending: true });
 
 
   if (error) {
