@@ -761,8 +761,6 @@ function render() {
       task.id;
 
 
-    // Drag
-
     const handle =
       document.createElement("div");
 
@@ -775,8 +773,6 @@ function render() {
     handle.textContent =
       "⠿";
 
-
-    // Checkbox
 
     const check =
       document.createElement("input");
@@ -803,8 +799,6 @@ function render() {
     );
 
 
-    // Badge
-
     const badge =
       document.createElement("span");
 
@@ -815,8 +809,6 @@ function render() {
       task.responsible;
 
 
-    // Text
-
     const text =
       document.createElement("div");
 
@@ -826,8 +818,6 @@ function render() {
     text.textContent =
       task.text;
 
-
-    // Edit task
 
     const edit =
       document.createElement("button");
@@ -856,8 +846,6 @@ function render() {
         openEditTask(task)
     );
 
-
-    // Delete
 
     const del =
       document.createElement("button");
@@ -1450,7 +1438,6 @@ function startRealtime() {
     client
       .channel("sitges-realtime")
 
-      // Tasques
       .on(
         "postgres_changes",
         {
@@ -1467,7 +1454,6 @@ function startRealtime() {
         }
       )
 
-      // Responsables
       .on(
         "postgres_changes",
         {
@@ -1491,6 +1477,37 @@ function startRealtime() {
         }
       );
 }
+
+
+// ==========================
+// REFRESH ON MOBILE / RETURN
+// ==========================
+
+document.addEventListener(
+  "visibilitychange",
+  async () => {
+
+    if (
+      document.visibilityState === "visible"
+    ) {
+
+      await loadResponsibles();
+
+      await loadTasks();
+    }
+  }
+);
+
+
+window.addEventListener(
+  "focus",
+  async () => {
+
+    await loadResponsibles();
+
+    await loadTasks();
+  }
+);
 
 
 // ==========================
@@ -1669,7 +1686,7 @@ newResponsibleCode.addEventListener(
 );
 
 
-// Enter en els camps del responsable
+// Enter en el camp del nom
 
 newResponsibleName.addEventListener(
   "keydown",
