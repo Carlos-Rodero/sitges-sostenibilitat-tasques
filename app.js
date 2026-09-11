@@ -1,4 +1,3 @@
-
 const cfg = window.APP_CONFIG || {};
 const configured =
   cfg.SUPABASE_URL &&
@@ -22,6 +21,7 @@ const cancelBtn = document.getElementById("cancelBtn");
 
 let filterResp = "ALL";
 let tasks = [];
+let realtimeChannel = null;
 
 const demoTasks = [
   {id:"d1", text:"Confirmar ampliació del termini per trobar la persona de pràctiques (18–21 setembre)", responsible:"GL", done:false},
@@ -41,6 +41,7 @@ function localLoad(){
   const saved = localStorage.getItem("sitges_tasks");
   tasks = saved ? JSON.parse(saved) : demoTasks;
 }
+
 function localSave(){
   localStorage.setItem("sitges_tasks", JSON.stringify(tasks));
 }
@@ -51,14 +52,17 @@ async function loadTasks(){
     render();
     return;
   }
+
   const {data, error} = await client
     .from("tasks")
     .select("*")
     .order("created_at", {ascending:false});
+
   if(error){
     alert("No s'han pogut carregar les tasques: " + error.message);
     return;
   }
+
   tasks = data;
   render();
 }
@@ -104,37 +108,95 @@ function render(){
 
 async function addTask(text, responsible){
   if(client){
-    const {error} = await client.from("tasks").insert({text, responsible});
-    if(error){ alert(error.message); return; }
-    await loadTasks();
-  }else{
-    tasks.unshift({id:crypto.randomUUID(), text, responsible, done:false});
-    localSave(); render();
+    const {error} = await client
+      .from("tasks")
+      .insert({text, responsible});
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    return;
   }
+
+  tasks.unshift({
+    id: crypto.randomUUID(),
+    text,
+    responsible,
+    done: false
+  });
+
+  localSave();
+  render();
 }
 
 async function toggleTask(id, done){
   if(client){
-    const {error} = await client.from("tasks").update({done}).eq("id", id);
-    if(error){ alert(error.message); return; }
-    await loadTasks();
-  }else{
-    const task = tasks.find(t => t.id === id);
-    if(task) task.done = done;
-    localSave(); render();
+    const {error} = await client
+      .from("tasks")
+      .update({done})
+      .eq("id", id);
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    return;
   }
+
+  const task = tasks.find(t => t.id === id);
+
+  if(task){
+    task.done = done;
+  }
+
+  localSave();
+  render();
 }
 
 async function deleteTask(id){
   if(!confirm("Eliminar aquesta tasca?")) return;
+
   if(client){
-    const {error} = await client.from("tasks").delete().eq("id", id);
-    if(error){ alert(error.message); return; }
-    await loadTasks();
-  }else{
-    tasks = tasks.filter(t => t.id !== id);
-    localSave(); render();
+    const {error} = await client
+      .from("tasks")
+      .delete()
+      .eq("id", id);
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    return;
   }
+
+  tasks = tasks.filter(t => t.id !== id);
+  localSave();
+  render();
+}
+
+function startRealtime(){
+  if(!client) return;
+
+  realtimeChannel = client
+    .channel("tasks-realtime")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "tasks"
+      },
+      async () => {
+        await loadTasks();
+      }
+    )
+    .subscribe(status => {
+      console.log("Realtime status:", status);
+    });
 }
 
 document.querySelectorAll(".filter").forEach(btn => {
@@ -147,19 +209,30 @@ document.querySelectorAll(".filter").forEach(btn => {
 });
 
 hideDone.addEventListener("change", render);
+
 newTaskBtn.addEventListener("click", () => {
   form.reset();
   dialog.showModal();
   textInput.focus();
 });
+
 cancelBtn.addEventListener("click", () => dialog.close());
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const text = textInput.value.trim();
+
   if(!text) return;
+
   await addTask(text, respInput.value);
+
   dialog.close();
 });
 
-loadTasks();
+async function init(){
+  await loadTasks();
+  startRealtime();
+}
+
+init();
