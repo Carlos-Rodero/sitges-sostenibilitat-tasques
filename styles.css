@@ -156,9 +156,9 @@ textarea {
   display: grid;
 
   /*
-    Checkbox | Responsable | Tasca | Editar | Eliminar
+    Drag | Checkbox | Responsable | Tasca | Editar | Eliminar
   */
-  grid-template-columns: auto 64px minmax(0, 1fr) auto auto;
+  grid-template-columns: 28px auto 64px minmax(0, 1fr) auto auto;
 
   gap: 8px;
   align-items: center;
@@ -168,6 +168,11 @@ textarea {
   border-radius: 12px;
 
   padding: 13px 14px;
+
+  transition:
+    box-shadow 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .task.done .text {
@@ -176,7 +181,57 @@ textarea {
 }
 
 
-/* Checkbox */
+/* =========================
+   DRAG HANDLE
+   ========================= */
+
+.drag-handle {
+  width: 28px;
+  text-align: center;
+  color: #aaa;
+  font-size: 18px;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.drag-handle:hover {
+  color: var(--accent);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+
+/* Element mentre s'arrossega */
+
+.drag-ghost {
+  opacity: 0.35;
+}
+
+.drag-chosen {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+
+/* Si hi ha un filtre actiu o s'amaguen les fetes,
+   desactivem visualment el drag */
+
+.sorting-disabled .drag-handle {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.sorting-disabled .drag-handle:hover {
+  color: #aaa;
+}
+
+
+/* =========================
+   CHECKBOX
+   ========================= */
 
 .task input[type="checkbox"] {
   width: 20px;
@@ -186,7 +241,9 @@ textarea {
 }
 
 
-/* Responsable */
+/* =========================
+   RESPONSABLE
+   ========================= */
 
 .badge {
   text-align: center;
@@ -198,7 +255,9 @@ textarea {
 }
 
 
-/* Text de la tasca */
+/* =========================
+   TASK TEXT
+   ========================= */
 
 .text {
   line-height: 1.35;
@@ -309,7 +368,9 @@ select:focus {
 }
 
 
-/* Dialog buttons */
+/* =========================
+   DIALOG BUTTONS
+   ========================= */
 
 .dialog-actions {
   display: flex;
@@ -356,9 +417,14 @@ select:focus {
   }
 
   .task {
-    grid-template-columns: auto 54px minmax(0, 1fr) auto auto;
+    grid-template-columns: 24px auto 54px minmax(0, 1fr) auto auto;
     gap: 7px;
     padding: 12px 10px;
+  }
+
+  .drag-handle {
+    width: 24px;
+    font-size: 17px;
   }
 
   .edit,
@@ -369,5 +435,4 @@ select:focus {
   h1 {
     font-size: 30px;
   }
-
 }
