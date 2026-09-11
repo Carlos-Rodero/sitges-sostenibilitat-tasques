@@ -189,13 +189,11 @@ async function loadTasks() {
 
 
   const { data, error } =
-    await client
-      .from("tasks")
-      .select("*")
-      .order(
-        "created_at",
-        { ascending: false }
-      );
+  await client
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true });
 
 
   if (error) {
