@@ -39,6 +39,24 @@ body {
   margin-bottom: 28px;
 }
 
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.brand-logo {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: var(--accent);
@@ -442,7 +460,9 @@ select:focus {
 }
 
 
-/* Llista */
+/* =========================
+   RESPONSIBLES LIST
+   ========================= */
 
 .responsibles-list {
   display: grid;
@@ -468,9 +488,7 @@ select:focus {
   font-weight: 800;
   font-size: 12px;
   text-align: center;
-
   background: #f1efec;
-
   padding: 5px 4px;
   border-radius: 6px;
 }
@@ -484,7 +502,6 @@ select:focus {
   background: transparent;
   color: #999;
   cursor: pointer;
-
   font-size: 17px;
   padding: 4px;
   border-radius: 6px;
@@ -496,7 +513,9 @@ select:focus {
 }
 
 
-/* Separador */
+/* =========================
+   RESPONSIBLES FORM
+   ========================= */
 
 .responsibles-panel hr {
   border: 0;
@@ -509,9 +528,6 @@ select:focus {
   font-size: 16px;
 }
 
-
-/* Formulari nou responsable */
-
 .responsible-form {
   display: grid;
   grid-template-columns: 90px minmax(0, 1fr);
@@ -523,19 +539,15 @@ select:focus {
   display: grid;
   gap: 6px;
   margin: 0;
-
   font-size: 13px;
   font-weight: 700;
 }
 
 .responsible-form input {
   width: 100%;
-
   border: 1px solid #ccc;
   border-radius: 9px;
-
   padding: 9px 10px;
-
   background: white;
   color: var(--ink);
 }
@@ -564,6 +576,24 @@ select:focus {
   .top {
     display: grid;
     gap: 14px;
+  }
+
+  .brand-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 82px;
+    height: 82px;
+  }
+
+  .brand-copy h1 {
+    font-size: 28px;
+  }
+
+  .brand-copy .subtitle {
+    font-size: 14px;
   }
 
   .top .primary {
@@ -602,9 +632,7 @@ select:focus {
       18px;
 
     gap: 4px;
-
     padding: 9px 6px;
-
     border-radius: 10px;
   }
 
@@ -657,7 +685,6 @@ select:focus {
       auto;
 
     gap: 8px;
-
     padding: 8px;
   }
 
@@ -667,10 +694,5 @@ select:focus {
       minmax(0, 1fr);
 
     gap: 8px;
-  }
-
-
-  h1 {
-    font-size: 30px;
   }
 }
