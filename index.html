@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pendents Sostenibilitat · Sitges 2026</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div>
+        <p class="eyebrow">Festival de Sitges 2026</p>
+        <h1>Pendents Sostenibilitat</h1>
+        <p class="subtitle">Bloc compartit per apuntar coses a fer i marcar-les quan estiguin resoltes.</p>
+      </div>
+      <button id="newTaskBtn" class="primary">+ Nova tasca</button>
+    </header>
+
+    <section class="toolbar">
+      <div class="filters" id="responsibleFilters">
+        <button class="filter active" data-resp="ALL">Tots</button>
+        <button class="filter" data-resp="CR">CR</button>
+        <button class="filter" data-resp="GL">GL</button>
+        <button class="filter" data-resp="CM">CM</button>
+        <button class="filter" data-resp="PROD">PROD</button>
+      </div>
+      <label class="toggle">
+        <input id="hideDone" type="checkbox" />
+        <span>Amaga les fetes</span>
+      </label>
+    </section>
+
+    <section class="legend">
+      <strong>Responsables:</strong>
+      CR · Carlos &nbsp;·&nbsp; GL · Giada/Laura &nbsp;·&nbsp; CM · Carles Molina &nbsp;·&nbsp; PROD · Producció
+    </section>
+
+    <section class="task-list" id="taskList" aria-live="polite"></section>
+
+    <p id="emptyState" class="empty" hidden>No hi ha tasques amb aquest filtre.</p>
+  </main>
+
+  <dialog id="taskDialog">
+    <form id="taskForm" method="dialog">
+      <h2>Nova tasca</h2>
+      <label>
+        Tasca
+        <textarea id="taskText" rows="4" required placeholder="Ex. Consultar amb Mònica si hi ha pressupost..."></textarea>
+      </label>
+      <label>
+        Responsable
+        <select id="taskResp">
+          <option value="CR">CR · Carlos</option>
+          <option value="GL">GL · Giada/Laura</option>
+          <option value="CM">CM · Carles Molina</option>
+          <option value="PROD">PROD · Producció</option>
+        </select>
+      </label>
+      <div class="dialog-actions">
+        <button type="button" id="cancelBtn" class="ghost">Cancel·la</button>
+        <button type="submit" class="primary">Afegeix</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
